@@ -1,0 +1,19 @@
+name: Validate C# branch
+on:
+  pull_request:
+  push:
+    branches:
+      - csharp-winui-migration
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - run: dotnet restore G_Tweaker.sln
+      - run: dotnet test tests/G_Tweaker.Tests/G_Tweaker.Tests.csproj --configuration Release
+      - run: dotnet build src/G_Tweaker.App/G_Tweaker.App.csproj --configuration Release --no-restore

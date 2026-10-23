@@ -1,25 +1,28 @@
-name: Build Windows executable
+name: Build G_Tweaker (C#)
 on:
   workflow_dispatch:
   push:
+    branches:
+      - csharp-winui-migration
     tags:
       - "v*"
 permissions:
-  contents: write
+  contents: read
 jobs:
   build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-dotnet@v4
         with:
-          python-version: "3.12"
-          cache: pip
-      - run: python -m pip install -r requirements.txt
-      - run: $env:PYTHONPATH = 'src'; python -m pytest
-        shell: pwsh
-      - run: python -m PyInstaller G_Tweaker.spec --clean
+          dotnet-version: "10.0.x"
+      - name: Restore
+        run: dotnet restore G_Tweaker.sln
+      - name: Test core catalogue
+        run: dotnet test tests/G_Tweaker.Tests/G_Tweaker.Tests.csproj --configuration Release
+      - name: Publish x64 executable
+        run: dotnet publish src/G_Tweaker.App/G_Tweaker.App.csproj --configuration Release --runtime win-x64 --self-contained true --output artifacts/G_Tweaker-win-x64
       - uses: actions/upload-artifact@v4
         with:
-          name: G_Tweaker-windows
-          path: dist/G_Tweaker.exe
+          name: G_Tweaker-win-x64
+          path: artifacts/G_Tweaker-win-x64/

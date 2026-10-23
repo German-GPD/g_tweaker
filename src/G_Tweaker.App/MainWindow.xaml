@@ -94,7 +94,7 @@
                                             <TextBlock Text="{Binding Warning}" TextWrapping="Wrap" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
                                             <StackPanel Orientation="Horizontal" Spacing="8">
                                                 <Button Content="Apply" Tag="{Binding Id}" Click="Apply_Click" Style="{StaticResource AccentButtonStyle}"/>
-                                                <Button Content="Restore configured value" Tag="{Binding Id}" Click="Restore_Click"/>
+                                                <Button Content="Restore configured value" Tag="{Binding Id}" Click="Restore_Click" IsEnabled="{Binding CanRestore}"/>
                                             </StackPanel>
                                         </StackPanel>
                                     </Border>

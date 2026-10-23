@@ -1,50 +1,48 @@
 # G_Tweaker
 
-A Windows 10/11 tweaking utility with a Windows 11-inspired dark Fluent interface.
+G_Tweaker is a Windows 10/11 configuration utility being rebuilt with **C#**, **.NET 10 LTS** and **WinUI 3**.
 
-> Early development: review every change before applying it. Registry tweaks can affect system behaviour.
+The active C# migration is in the `csharp-winui-migration` branch. The existing Python prototype remains on `main` until the migration has been built and tested.
 
-## Current features
+## Current C# branch
 
-- Searchable tweak catalogue with Privacy, Input, Explorer and Gaming categories
-- Current-state display and confirmation before changes
-- Per-operation registry backup and latest-change rollback
-- Windows activation status query and shortcut to Activation settings
-- GitHub Actions workflow to build a Windows executable
-
-## Planned
-
-- Light/dark/system theme selection
-- Importable and exportable profiles with preview
-- More thoroughly tested privacy and performance settings
-- Better rollback history management and compatibility checks
+- Native WinUI 3 navigation and Fluent-style cards
+- Searchable tweak catalogue and categories
+- Windows registry state inspection and per-change snapshots
+- Latest-change rollback
+- Previewable starter profiles
+- Windows activation status query and official Settings shortcut
+- Windows CI build and catalogue tests
 
 ## Requirements
 
-- Windows 10/11
-- Python 3.12+
+- Windows 10 version 1809 or newer; Windows 11 recommended
+- Visual Studio 2022/2026 with **.NET desktop development** and **Windows App SDK / WinUI** components
+- .NET 10 SDK
+- Windows SDK
 
-## Run from source
+## Open and run
 
-PowerShell:
+Open `G_Tweaker.sln` in Visual Studio, select the `G_Tweaker.App` project, then run.
 
-    py -3.12 -m venv .venv
-    .\.venv\Scripts\Activate.ps1
-    python -m pip install -r requirements.txt
-    $env:PYTHONPATH = "src"
-    python -m g_tweaker.main
+Or use PowerShell:
 
-## Build an EXE
+    dotnet restore G_Tweaker.sln
+    dotnet build src/G_Tweaker.App/G_Tweaker.App.csproj -c Debug
 
-    python -m pip install -r requirements.txt
-    python -m PyInstaller G_Tweaker.spec --clean
+## Publish x64
 
-The executable will be written to dist/G_Tweaker.exe. You can also run the GitHub Actions workflow manually.
+    dotnet publish src/G_Tweaker.App/G_Tweaker.App.csproj -c Release -r win-x64 --self-contained true -o artifacts/G_Tweaker-win-x64
+
+The output directory contains `G_Tweaker.App.exe` and its required runtime files. It is not yet a single-file installer.
 
 ## Safety
 
-See docs/SECURITY.md. G_Tweaker does not silently disable security features or bypass Windows licensing. Some settings require administrator rights, and some policies are unavailable on certain Windows editions.
+- Review every tweak before applying it.
+- Registry values are saved before changes and stored under `%LOCALAPPDATA%\G_Tweaker\history.json`.
+- System-wide registry changes require running the app as administrator.
+- Some policies vary by Windows edition and organisation management.
+- Activation support checks status and opens official Windows settings; it does not bypass licensing.
+- The C# migration is early development and must pass Windows CI and manual VM testing before release.
 
-## License
-
-MIT. See LICENSE.
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).

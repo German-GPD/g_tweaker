@@ -7,6 +7,13 @@ public static class TweakCatalog
 {
     public static IReadOnlyList<TweakDefinition> All { get; } =
     [
+        new("privacy.diagnostic-data", "Limit diagnostic data to required",
+            "Requests the required diagnostic-data level where supported by the Windows edition and policy.",
+            TweakCategory.Privacy, RegistryHive.LocalMachine,
+            @"SOFTWARE\Policies\Microsoft\Windows\DataCollection",
+            "AllowTelemetry", RegistryValueKind.DWord, 1, 3,
+            "Requires administrator rights. This does not disable all Windows diagnostics; edition and organisation policies may override it."),
+
         new("privacy.advertising-id", "Disable advertising ID",
             "Turns off the advertising identifier for the current Windows user.",
             TweakCategory.Privacy, RegistryHive.CurrentUser,

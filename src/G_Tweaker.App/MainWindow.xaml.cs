@@ -332,13 +332,17 @@ public sealed partial class MainWindow : Window
         start.ArgumentList.Add(script);
         start.ArgumentList.Add("/xpr");
         using var process = Process.Start(start) ?? throw new InvalidOperationException("Could not start Windows Script Host.");
-        var output = process.StandardOutput.ReadToEnd();
-        var error = process.StandardError.ReadToEnd();
+        var outputTask = process.StandardOutput.ReadToEndAsync();
+        var errorTask = process.StandardError.ReadToEndAsync();
         if (!process.WaitForExit(20000))
         {
             process.Kill(entireProcessTree: true);
+            process.WaitForExit();
             throw new TimeoutException("The activation query timed out.");
         }
+        Task.WaitAll(outputTask, errorTask);
+        var output = outputTask.GetAwaiter().GetResult();
+        var error = errorTask.GetAwaiter().GetResult();
         return string.IsNullOrWhiteSpace(output) ? error : output;
     }
 

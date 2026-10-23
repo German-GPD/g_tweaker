@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "G_Tweaker.App", "src\G_Twea
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "G_Tweaker.Core", "src\G_Tweaker.Core\G_Tweaker.Core.csproj", "{A58F5B8A-9272-4B6B-92E1-2F2A3C0C1202}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "G_Tweaker.Tests", "tests\G_Tweaker.Tests\G_Tweaker.Tests.csproj", "{2D7B4A6C-75A1-4E73-AEF2-8B1B1D0C1203}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

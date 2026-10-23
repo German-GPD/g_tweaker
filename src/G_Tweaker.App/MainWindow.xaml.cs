@@ -314,13 +314,16 @@ public sealed partial class MainWindow : Window
     {
         var windir = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
         var script = Path.Combine(windir, "System32", "slmgr.vbs");
-        var start = new ProcessStartInfo("cscript.exe", $"//Nologo \\"{script}\\" /xpr")
+        var start = new ProcessStartInfo("cscript.exe")
         {
             UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             CreateNoWindow = true
         };
+        start.ArgumentList.Add("//Nologo");
+        start.ArgumentList.Add(script);
+        start.ArgumentList.Add("/xpr");
         using var process = Process.Start(start) ?? throw new InvalidOperationException("Could not start Windows Script Host.");
         var output = process.StandardOutput.ReadToEnd();
         var error = process.StandardError.ReadToEnd();

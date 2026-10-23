@@ -116,7 +116,19 @@
                             <TextBlock Text="Change history" FontSize="22" FontWeight="SemiBold"/>
                             <TextBlock Text="The latest change can be rolled back to its recorded previous registry value." TextWrapping="Wrap"/>
                             <Button Content="Roll back latest change" Click="Rollback_Click" Style="{StaticResource AccentButtonStyle}" HorizontalAlignment="Left"/>
-                            <ItemsControl x:Name="HistoryList"/>
+                            <ItemsControl x:Name="HistoryList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="12" Margin="0,0,0,8" CornerRadius="8"
+                                                Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                                            <StackPanel Spacing="4">
+                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding Details}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>

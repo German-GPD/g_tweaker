@@ -41,15 +41,6 @@ public sealed partial class MainWindow : Window
         Navigation.SelectedItem = Navigation.MenuItems[0];
         ShowPage("Home");
         BuildProfiles();
-        ExtendsContentIntoTitleBar = false;
-        try
-        {
-            if (AppWindowTitleBar.IsCustomizationSupported())
-            {
-                AppWindow.TitleBar.PreferredHeightOption = Microsoft.UI.Windowing.TitleBarHeightOption.Tall;
-            }
-        }
-        catch { /* Title-bar customization is optional on unsupported Windows builds. */ }
     }
 
     private void Navigation_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)

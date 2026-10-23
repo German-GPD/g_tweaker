@@ -1,6 +1,7 @@
-using Xunit;
 using G_Tweaker.Core.Models;
 using G_Tweaker.Core.Services;
+using Microsoft.Win32;
+using Xunit;
 
 namespace G_Tweaker.Tests;
 
@@ -14,7 +15,18 @@ public sealed class TweakCatalogTests
     }
 
     [Fact]
-    public void EveryTweakHasRequiredMetadata()
+    public void CatalogueHasUsefulCoverage()
+    {
+        Assert.True(TweakCatalog.All.Count >= 15, "The catalogue should cover the supported main categories.");
+        Assert.Contains(TweakCatalog.All, t => t.Category == TweakCategory.Privacy);
+        Assert.Contains(TweakCatalog.All, t => t.Category == TweakCategory.Performance);
+        Assert.Contains(TweakCatalog.All, t => t.Category == TweakCategory.Input);
+        Assert.Contains(TweakCatalog.All, t => t.Category == TweakCategory.Explorer);
+        Assert.Contains(TweakCatalog.All, t => t.Category == TweakCategory.Gaming);
+    }
+
+    [Fact]
+    public void EveryTweakHasRequiredMetadataAndExplicitValues()
     {
         Assert.NotEmpty(TweakCatalog.All);
         Assert.All(TweakCatalog.All, tweak =>
@@ -24,21 +36,38 @@ public sealed class TweakCatalogTests
             Assert.False(string.IsNullOrWhiteSpace(tweak.Description));
             Assert.False(string.IsNullOrWhiteSpace(tweak.SubKey));
             Assert.False(string.IsNullOrWhiteSpace(tweak.ValueName));
+            Assert.NotNull(tweak.EnabledValue);
+            Assert.NotNull(tweak.DisabledValue);
+            Assert.Contains(tweak.ValueKind, new[] { RegistryValueKind.DWord, RegistryValueKind.String });
+            if (tweak.Hive == RegistryHive.LocalMachine)
+                Assert.False(string.IsNullOrWhiteSpace(tweak.Warning), $"System-wide tweak {tweak.Id} needs a warning.");
         });
     }
 
     [Fact]
-    public void EveryTweakUsesAnExplicitSupportedValueKind()
+    public void DiagnosticDataTweakDoesNotClaimToDisableAllTelemetry()
     {
-        Assert.All(TweakCatalog.All, tweak =>
-            Assert.Contains(tweak.ValueKind, new[] { Microsoft.Win32.RegistryValueKind.DWord, Microsoft.Win32.RegistryValueKind.String }));
+        var tweak = Assert.Single(TweakCatalog.All.Where(t => t.Id == "privacy.diagnostic-data"));
+        Assert.Equal(RegistryHive.LocalMachine, tweak.Hive);
+        Assert.Contains("does not disable all", tweak.Warning!, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
-    public void SystemPolicyTweaksWarnAboutEditionAndPermissions()
+    public void SensitiveExplorerAndCaptureTweaksExplainTheirImpact()
     {
-        var policy = Assert.Single(TweakCatalog.All.Where(t => t.Id == "privacy.diagnostic-data"));
-        Assert.Equal(Microsoft.Win32.RegistryHive.LocalMachine, policy.Hive);
-        Assert.False(string.IsNullOrWhiteSpace(policy.Warning));
+        var protectedFiles = Assert.Single(TweakCatalog.All.Where(t => t.Id == "explorer.super-hidden-files"));
+        Assert.False(string.IsNullOrWhiteSpace(protectedFiles.Warning));
+        var capture = Assert.Single(TweakCatalog.All.Where(t => t.Id == "gaming.app-capture"));
+        Assert.False(string.IsNullOrWhiteSpace(capture.Warning));
+    }
+
+    [Fact]
+    public void EveryTweakHasBothOnAndOffValues()
+    {
+        Assert.All(TweakCatalog.All, tweak =>
+        {
+            Assert.NotNull(tweak.EnabledValue);
+            Assert.NotNull(tweak.DisabledValue);
+        });
     }
 }

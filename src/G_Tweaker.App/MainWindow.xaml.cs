@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Security.Principal;
 using G_Tweaker.Core.Models;
 using G_Tweaker.Core.Services;
 using Microsoft.UI.Xaml;
@@ -194,8 +195,8 @@ public sealed partial class MainWindow : Window
     private void BuildProfiles()
     {
         ProfilesPanel.Children.Clear();
-        AddProfile("Privacy starter", "Disable the advertising ID for the current user.",
-            ["privacy.advertising-id"]);
+        AddProfile("Privacy starter", "Request the required diagnostic-data level where supported and disable the advertising ID.",
+            ["privacy.diagnostic-data", "privacy.advertising-id"]);
         AddProfile("Gaming starter", "Enable Windows Game Mode.",
             ["gaming.game-mode"]);
         AddProfile("Everyday usability", "Show file extensions and disable the Sticky Keys shortcut.",
@@ -229,6 +230,12 @@ public sealed partial class MainWindow : Window
     {
         if (sender is not Button { Tag: ProfileRequest profile }) return;
         var tweaks = TweakCatalog.All.Where(t => profile.Ids.Contains(t.Id)).ToList();
+        if (tweaks.Any(t => t.Hive == RegistryHive.LocalMachine) && !IsAdministrator())
+        {
+            await ShowMessageAsync("Administrator rights required",
+                "This profile contains system-wide settings. Close G_Tweaker, launch it with Run as administrator, then apply the profile again. No changes have been made.");
+            return;
+        }
         var preview = string.Join(Environment.NewLine, tweaks.Select(t => $"• {t.Title} — current: {_manager.GetState(t)}"));
         var dialog = new ContentDialog
         {
@@ -345,6 +352,12 @@ public sealed partial class MainWindow : Window
         {
             _ = ShowMessageAsync("Could not open Settings", ex.Message);
         }
+    }
+
+    private static bool IsAdministrator()
+    {
+        using var identity = WindowsIdentity.GetCurrent();
+        return new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
     }
 
     private async Task ShowMessageAsync(string title, string message)

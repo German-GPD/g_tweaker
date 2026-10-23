@@ -1,3 +1,5 @@
+using Microsoft.Win32;
+
 namespace G_Tweaker.Core.Models;
 
 public enum TweakCategory

@@ -48,6 +48,10 @@ TWEAKS = [
           "Enables Game Mode for the current user; impact varies by system.",
           "Gaming", "HKCU", r"Software\Microsoft\GameBar",
           "AutoGameModeEnabled", "DWORD", 1, 0),
+    Tweak("performance.transparency", "Reduce transparency effects",
+          "Disables Windows transparency effects for the current user. Visual preference; performance gains are not guaranteed.",
+          "Performance", "HKCU", r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
+          "EnableTransparency", "DWORD", 0, 1),
 ]
 HIVES = {"HKCU": winreg.HKEY_CURRENT_USER, "HKLM": winreg.HKEY_LOCAL_MACHINE}
 

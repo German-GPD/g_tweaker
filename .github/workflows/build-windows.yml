@@ -1,0 +1,23 @@
+name: Build Windows executable
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: python -m PyInstaller G_Tweaker.spec --clean
+      - uses: actions/upload-artifact@v4
+        with:
+          name: G_Tweaker-windows
+          path: dist/G_Tweaker.exe

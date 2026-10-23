@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/G_Tweaker.App/G_Tweaker.App.csproj" />
+  <Project Path="src/G_Tweaker.Core/G_Tweaker.Core.csproj" />
+  <Project Path="tests/G_Tweaker.Tests/G_Tweaker.Tests.csproj" />
+</Solution>

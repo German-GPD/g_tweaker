@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - main
       - csharp-winui-migration
     tags:
       - "v*"

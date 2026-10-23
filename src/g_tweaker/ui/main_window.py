@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
     QMessageBox, QScrollArea, QTextEdit, QStatusBar
 )
 from g_tweaker.core.tweak_engine import TWEAKS, Tweak, apply_tweak, current_state, rollback_latest, history_items, activation_status
+from g_tweaker.core.profiles import PROFILES, get_profile
 from g_tweaker.ui.theme import DARK_QSS
 
 class MainWindow(QMainWindow):
@@ -122,10 +123,22 @@ class MainWindow(QMainWindow):
         self.pages.addWidget(activation)
 
         profiles = self._page()
-        self._heading(profiles, "Profiles", "Profile preview and batch application are being built.")
-        self._card(profiles, "Privacy", "Planned: preview privacy settings and apply them as a reviewed set.")
-        self._card(profiles, "Gaming", "Planned: a small, transparent set of gaming-related options.")
-        self._card(profiles, "Custom profiles", "Planned: save, import and export your own sets of tweaks.")
+        self._heading(profiles, "Profiles", "Review each profile before applying its settings.")
+        for profile_name, profile_data in PROFILES.items():
+            card = QFrame()
+            card.setObjectName("card")
+            box = QVBoxLayout(card)
+            heading = QLabel(profile_name)
+            heading.setStyleSheet("font-size: 12pt; font-weight: 600;")
+            desc = QLabel(profile_data["description"])
+            desc.setObjectName("muted")
+            desc.setWordWrap(True)
+            box.addWidget(heading)
+            box.addWidget(desc)
+            self._button(box, "Preview and apply", lambda checked=False, name=profile_name: self.apply_profile(name), True)
+            profiles.layout().addWidget(card)
+        self._card(profiles, "Custom profiles", "Import/export and user-created profiles are planned for a later version.")
+        profiles.layout().addStretch(1)
         self.pages.addWidget(profiles)
 
         history = self._page()
@@ -197,6 +210,31 @@ class MainWindow(QMainWindow):
         actions.addStretch(1)
         box.addLayout(actions)
         self.tweak_list.addWidget(card)
+
+    def apply_profile(self, name):
+        profile = get_profile(name)
+        tweaks = profile["tweaks"]
+        preview = "\\n".join(f"• {t.title} — current: {current_state(t)}" for t in tweaks)
+        answer = QMessageBox.question(
+            self, f"Apply {name} profile?",
+            f"{profile['description']}\\n\\nThe following settings will be applied:\\n{preview}\\n\\nEach successful change will be recorded separately for rollback.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel,
+            QMessageBox.StandardButton.Cancel)
+        if answer != QMessageBox.StandardButton.Yes:
+            return
+        failures = []
+        for tweak in tweaks:
+            try:
+                apply_tweak(tweak, True)
+            except Exception as exc:
+                failures.append(f"{tweak.title}: {exc}")
+                break
+        if failures:
+            QMessageBox.warning(self, "Profile partially applied", "Some settings may already have changed. Review history and roll back as needed.\\n\\n" + "\\n".join(failures))
+        else:
+            QMessageBox.information(self, "Profile applied", f"{name} profile applied. Review any warnings shown on individual tweaks.")
+        self.refresh_history()
+        self.refresh_tweaks()
 
     def confirm_apply(self, tweak, enabled):
         operation = "apply" if enabled else "restore the configured value for"
